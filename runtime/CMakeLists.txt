@@ -20,3 +20,19 @@ add_subdirectory(engine)
 add_subdirectory(executor)
 add_subdirectory(framework)
 add_subdirectory(util)
+
+# ==============================================================================
+# Folder Facade
+# ==============================================================================
+add_library(runtime_libs INTERFACE)
+add_library(LiteRTLM::Runtime ALIAS runtime_libs)
+
+target_link_libraries(runtime_libs INTERFACE
+  LiteRTLM::Runtime::Components
+  LiteRTLM::Runtime::Conversation
+  LiteRTLM::Runtime::Core
+  LiteRTLM::Runtime::Engine
+  LiteRTLM::Runtime::Executor
+  LiteRTLM::Runtime::Framework
+  LiteRTLM::Runtime::Util
+)

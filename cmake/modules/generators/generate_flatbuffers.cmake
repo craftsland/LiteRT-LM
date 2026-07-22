@@ -13,12 +13,10 @@
 # limitations under the License.
 
 
-# Note: Currently unused. Retained for future use.
-
 function(generate_flatbuffers TARGET_NAME)
     set(GENERATED_HDRS "")
 
-    foreach(FBS_FILE IN LISTS LITERTLM_FLATBUFFER_FILES)
+    foreach(FBS_FILE IN LISTS LITERTLM_FLATBUFFERS_FILES)
         get_filename_component(FBS_DIR "${FBS_FILE}" DIRECTORY)
         get_filename_component(FIL_WE "${FBS_FILE}" NAME_WE)
 
@@ -31,13 +29,13 @@ function(generate_flatbuffers TARGET_NAME)
                     -o "${FBS_DIR}" 
                     "${FBS_FILE}"
             DEPENDS "${FBS_FILE}" LiteRTLM::flatbuffers::flatc
-            COMMENT "Generating Flatbuffer header: ${FIL_WE}_generated.h"
+            COMMENT "[LiteRTLM] Generating Flatbuffers header: ${HDR_FILE}"
             VERBATIM
         )
         list(APPEND GENERATED_HDRS "${HDR_FILE}")
     endforeach()
 
-    add_custom_target(litertlm_fbs_header_gen DEPENDS LiteRTLM::flatbuffers::flatc)
+    add_custom_target(litertlm_fbs_header_gen DEPENDS LITERTLM_HOST_FLATC)
 
     add_dependencies(${TARGET_NAME} litertlm_fbs_header_gen)
     

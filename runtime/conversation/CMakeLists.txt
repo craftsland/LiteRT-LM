@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-set(PKG_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-
 add_subdirectory(model_data_processor)
 
 add_litertlm_library(runtime_conversation_conversation STATIC
@@ -24,7 +22,6 @@ add_library(LiteRTLM::Runtime::Conversation::Conversation ALIAS runtime_conversa
 
 target_include_directories(runtime_conversation_conversation
   PUBLIC
-    ${PKG_ROOT}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
@@ -32,15 +29,35 @@ target_link_libraries(runtime_conversation_conversation
   PUBLIC
     LiteRTLM::Runtime::Conversation::InternalCallbackUtil
     LiteRTLM::Runtime::Conversation::IoTypes
-    LiteRTLM::Runtime::Conversation::Processor::ConfigRegistry
-    LiteRTLM::Runtime::Conversation::Processor::Factory
-    LiteRTLM::Runtime::Conversation::Processor::Interface
+    LiteRTLM::Runtime::Conversation::ModelDataProcessor::ConfigRegistry
+    LiteRTLM::Runtime::Conversation::ModelDataProcessor::Factory
+    LiteRTLM::Runtime::Conversation::ModelDataProcessor::Interface
 
     LiteRTLM::Runtime::Components::PromptTemplate
     LiteRTLM::Runtime::Components::ConstrainedDecoding
     runtime_util_litert_status_util
     LITERTLM_DEPS
 )
+
+
+add_litertlm_library(runtime_conversation_channel_util STATIC
+  channel_util.cc
+)
+add_library(LiteRTLM::Runtime::Conversation::ChannelUtil ALIAS runtime_conversation_channel_util)
+
+target_include_directories(runtime_conversation_channel_util
+  PUBLIC
+    ${LITERTLM_INCLUDE_PATHS}
+)
+
+target_link_libraries(runtime_conversation_channel_util
+  PUBLIC
+    LiteRTLM::Runtime::Conversation::IoTypes
+    LiteRTLM::Runtime::Conversation::ModelDataProcessor::ConfigRegistry
+    LiteRTLM::Runtime::Conversation::ModelDataProcessor::Interface
+    LITERTLM_DEPS
+)
+
 
 add_litertlm_library(runtime_conversation_internal_callback_util STATIC
   internal_callback_util.cc
@@ -49,15 +66,14 @@ add_library(LiteRTLM::Runtime::Conversation::InternalCallbackUtil ALIAS runtime_
 
 target_include_directories(runtime_conversation_internal_callback_util
   PUBLIC
-    ${PKG_ROOT}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_conversation_internal_callback_util
   PUBLIC
     LiteRTLM::Runtime::Conversation::IoTypes
-    LiteRTLM::Runtime::Conversation::Processor::ConfigRegistry
-    LiteRTLM::Runtime::Conversation::Processor::Interface
+    LiteRTLM::Runtime::Conversation::ModelDataProcessor::ConfigRegistry
+    LiteRTLM::Runtime::Conversation::ModelDataProcessor::Interface
     LITERTLM_DEPS
 )
 
@@ -68,7 +84,7 @@ add_library(LiteRTLM::Runtime::Conversation::IoTypes ALIAS runtime_conversation_
 
 target_include_directories(runtime_conversation_io_types
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
@@ -85,7 +101,7 @@ add_library(LiteRTLM::Runtime::Conversation::PromptUtils ALIAS runtime_conversat
 
 target_include_directories(runtime_conversation_prompt_utils
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
@@ -100,8 +116,9 @@ add_library(LiteRTLM::Runtime::Conversation ALIAS runtime_conversation_libs)
 
 target_link_libraries(runtime_conversation_libs INTERFACE
   LiteRTLM::Runtime::Conversation::Conversation
+  LiteRTLM::Runtime::Conversation::ChannelUtil
   LiteRTLM::Runtime::Conversation::InternalCallbackUtil
   LiteRTLM::Runtime::Conversation::IoTypes
   LiteRTLM::Runtime::Conversation::PromptUtils
-  LiteRTLM::Runtime::Conversation::Processor
+  LiteRTLM::Runtime::Conversation::ModelDataProcessor
 )

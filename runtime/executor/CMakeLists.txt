@@ -13,38 +13,61 @@
 # limitations under the License.
 
 
-set(PKG_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+add_subdirectory(litert)
 
 # ==============================================================================
 # Audio Executor Interface
 # ==============================================================================
 add_litertlm_library(runtime_executor_audio_executor INTERFACE)
-add_library(LiteRTLM::Runtime::Executor::AudioExecutor ALIAS runtime_executor_audio_executor)
+add_library(LiteRTLM::Runtime::Executor::AudioExecutorInterface
+ALIAS runtime_executor_audio_executor)
 
 target_include_directories(runtime_executor_audio_executor
   INTERFACE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 # ==============================================================================
-# Audio Executor Base
+# Audio Executor Base Interface
 # ==============================================================================
 add_litertlm_library(runtime_executor_audio_executor_base INTERFACE)
-add_library(LiteRTLM::Runtime::Executor::AudioExecutorBase ALIAS runtime_executor_audio_executor_base)
+add_library(LiteRTLM::Runtime::Executor::AudioExecutorBaseInterface
+  ALIAS runtime_executor_audio_executor_base)
 
 target_include_directories(runtime_executor_audio_executor_base
   INTERFACE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_audio_executor_base
   INTERFACE
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
     LITERTLM_DEPS
+)
+
+# ==============================================================================
+# Default Static GPU Accelerator
+# ==============================================================================
+add_litertlm_library(runtime_executor_default_static_gpu_accelerator INTERFACE)
+add_library(LiteRTLM::Runtime::Executor::DefaultStaticGpuAcceleratorInterface
+  ALIAS runtime_executor_default_static_gpu_accelerator)
+
+# ==============================================================================
+# LLM Processed Context Interface
+# ==============================================================================
+add_litertlm_library(runtime_executor_llm_processed_context INTERFACE)
+add_library(LiteRTLM::Runtime::Executor::LlmProcessedContextInterface 
+  ALIAS runtime_executor_llm_processed_context)
+
+target_include_directories(runtime_executor_llm_processed_context 
+  INTERFACE
+    ${LITERTLM_GENERATED_SRC_DIR}
+    ${LITERT_INCLUDE_DIR}
+    ${LITERTLM_INCLUDE_PATHS}
 )
 
 # ==============================================================================
@@ -53,11 +76,12 @@ target_link_libraries(runtime_executor_audio_executor_base
 add_litertlm_library(runtime_executor_audio_executor_settings STATIC
   audio_executor_settings.cc
 )
-add_library(LiteRTLM::Runtime::Executor::AudioExecutorSettings ALIAS runtime_executor_audio_executor_settings)
+add_library(LiteRTLM::Runtime::Executor::AudioExecutorSettings
+  ALIAS runtime_executor_audio_executor_settings)
 
 target_include_directories(runtime_executor_audio_executor_settings
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -65,8 +89,6 @@ target_include_directories(runtime_executor_audio_executor_settings
 target_link_libraries(runtime_executor_audio_executor_settings
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    runtime_util_litert_status_util
-
     LITERTLM_DEPS
 )
 
@@ -76,11 +98,12 @@ target_link_libraries(runtime_executor_audio_executor_settings
 add_litertlm_library(runtime_executor_audio_executor_utils STATIC
   audio_executor_utils.cc
 )
-add_library(LiteRTLM::Runtime::Executor::AudioExecutorUtils ALIAS runtime_executor_audio_executor_utils)
+add_library(LiteRTLM::Runtime::Executor::AudioExecutorUtils
+  ALIAS runtime_executor_audio_executor_utils)
 
 target_include_directories(runtime_executor_audio_executor_utils
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -88,9 +111,7 @@ target_include_directories(runtime_executor_audio_executor_utils
 target_link_libraries(runtime_executor_audio_executor_utils
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    runtime_util_litert_status_util
 )
-    
 
 # ==============================================================================
 # Audio LiteRT Compiled Model Executor
@@ -98,25 +119,24 @@ target_link_libraries(runtime_executor_audio_executor_utils
 add_litertlm_library(runtime_executor_audio_litert_compiled_model_executor STATIC
   audio_litert_compiled_model_executor.cc
 )
-add_library(LiteRTLM::Runtime::Executor::AudioLiteRTCompiledModel
+add_library(LiteRTLM::Runtime::Executor::AudioLitertCompiledModelExecutor
   ALIAS runtime_executor_audio_litert_compiled_model_executor)
 
 target_include_directories(runtime_executor_audio_litert_compiled_model_executor
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_audio_litert_compiled_model_executor
   PUBLIC
-    LiteRTLM::Runtime::Executor::AudioExecutor
+    LiteRTLM::Runtime::Executor::AudioExecutorInterface
     LiteRTLM::Runtime::Executor::AudioExecutorSettings
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    runtime_util_litert_status_util
-    LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
 
     LITERTLM_DEPS
 )
@@ -127,20 +147,20 @@ target_link_libraries(runtime_executor_audio_litert_compiled_model_executor
 add_litertlm_library(runtime_executor_executor_settings_base STATIC
   executor_settings_base.cc
 )
-add_library(LiteRTLM::Runtime::Executor::ExecutorSettingsBase ALIAS runtime_executor_executor_settings_base)
+add_library(LiteRTLM::Runtime::Executor::ExecutorSettingsBase
+ALIAS runtime_executor_executor_settings_base)
 
 target_include_directories(runtime_executor_executor_settings_base
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_executor_settings_base
   PUBLIC
-    runtime_util_scoped_file
-    runtime_util_litert_status_util
-    runtime_util_memory_mapped_file
+    LiteRTLM::Runtime::Util::ScopedFile
+    # LiteRTLM::Runtime::Util::MemoryMappedFile
 
     LITERTLM_DEPS
 )
@@ -151,11 +171,11 @@ target_link_libraries(runtime_executor_executor_settings_base
 add_litertlm_library(runtime_executor_fake_llm_executor STATIC
   fake_llm_executor.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMFakeExecutor ALIAS runtime_executor_fake_llm_executor)
+add_library(LiteRTLM::Runtime::Executor::FakeLlmExecutor ALIAS runtime_executor_fake_llm_executor)
 
 target_include_directories(runtime_executor_fake_llm_executor
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -163,11 +183,10 @@ target_include_directories(runtime_executor_fake_llm_executor
 target_link_libraries(runtime_executor_fake_llm_executor
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LLM::Interface
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
-    runtime_util_convert_tensor_buffer
-    runtime_util_litert_status_util
+    LiteRTLM::Runtime::Executor::LlmExecutorInterface
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
 
     LITERTLM_DEPS
 )
@@ -178,11 +197,11 @@ target_link_libraries(runtime_executor_fake_llm_executor
 add_litertlm_library(runtime_executor_litert_compiled_model_executor_utils STATIC
   litert_compiled_model_executor_utils.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils ALIAS runtime_executor_litert_compiled_model_executor_utils)
+add_library(LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils ALIAS runtime_executor_litert_compiled_model_executor_utils)
 
 target_include_directories(runtime_executor_litert_compiled_model_executor_utils
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -190,16 +209,19 @@ target_include_directories(runtime_executor_litert_compiled_model_executor_utils
 target_link_libraries(runtime_executor_litert_compiled_model_executor_utils
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    LiteRTLM::Runtime::Components::ModelResources::LiteRTLM
-    LiteRTLM::Runtime::Components::ModelResources::Task
-    LiteRTLM::Runtime::Components::Tokenizer::SentencePiece
-    runtime_util_file_format_util
-    runtime_util_litert_lm_loader
-    runtime_util_litert_status_util
-    runtime_util_memory_mapped_file
-    runtime_util_model_asset_bundle_resources
-    runtime_util_scoped_file
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Components::ModelResourcesLitertLm
+    LiteRTLM::Runtime::Components::ModelResourcesTask
+    LiteRTLM::Runtime::Components::ConstrainedDecoding::Decoder
+    LiteRTLM::Runtime::Components::EmbeddingLookup::Manager
+    LiteRTLM::Runtime::Components::EmbeddingLookup::Text
+    LiteRTLM::Generated::Protobuf
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
+    LiteRTLM::Runtime::Util::FileFormatUtil
+    LiteRTLM::Runtime::Util::LitertLmLoader
+    LiteRTLM::Runtime::Util::ModelAssetBundleResources
+    LiteRTLM::Runtime::Util::ScopedFile
+    LiteRTLM::Runtime::Util::TensorBufferUtil
     LITERTLM_DEPS
 )
 
@@ -207,38 +229,40 @@ target_link_libraries(runtime_executor_litert_compiled_model_executor_utils
 # LLM Executor Interface
 # ==============================================================================
 add_litertlm_library(runtime_executor_llm_executor INTERFACE)
-add_library(LiteRTLM::Runtime::Executor::LLM::Interface ALIAS runtime_executor_llm_executor)
+add_library(LiteRTLM::Runtime::Executor::LlmExecutorInterface
+  ALIAS runtime_executor_llm_executor)
 
 target_include_directories(runtime_executor_llm_executor
   INTERFACE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_llm_executor
   INTERFACE
-    LiteRTLM::Runtime::Executor::LLMExecutorBase
-    runtime_util_logging_tensor_buffer
+    LiteRTLM::Runtime::Executor::LlmExecutorBaseInterface
+    LiteRTLM::Runtime::Util::LoggingTensorBuffer
 )
 
 # ==============================================================================
-# LLM Executor Base
+# LLM Executor Base Interface
 # ==============================================================================
 add_litertlm_library(runtime_executor_llm_executor_base INTERFACE)
-add_library(LiteRTLM::Runtime::Executor::LLMExecutorBase ALIAS runtime_executor_llm_executor_base)
+add_library(LiteRTLM::Runtime::Executor::LlmExecutorBaseInterface
+  ALIAS runtime_executor_llm_executor_base)
 
 target_include_directories(runtime_executor_llm_executor_base
   INTERFACE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_llm_executor_base
   INTERFACE
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
     LITERTLM_DEPS
 )
 
@@ -248,11 +272,12 @@ target_link_libraries(runtime_executor_llm_executor_base
 add_litertlm_library(runtime_executor_llm_executor_io_types STATIC
   llm_executor_io_types.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMExecutorIoTypes ALIAS runtime_executor_llm_executor_io_types)
+add_library(LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+  ALIAS runtime_executor_llm_executor_io_types)
 
 target_include_directories(runtime_executor_llm_executor_io_types
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -260,7 +285,7 @@ target_include_directories(runtime_executor_llm_executor_io_types
 target_link_libraries(runtime_executor_llm_executor_io_types
   PUBLIC
     LiteRTLM::Runtime::Components::ConstrainedDecoding::Decoder
-    runtime_util_logging_tensor_buffer
+    LiteRTLM::Runtime::Util::LoggingTensorBuffer
     LITERTLM_DEPS
 )
 
@@ -270,11 +295,12 @@ target_link_libraries(runtime_executor_llm_executor_io_types
 add_litertlm_library(runtime_executor_llm_executor_processed_tokens STATIC
   llm_executor_processed_tokens.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMExecutorProcessedTokens ALIAS runtime_executor_llm_executor_processed_tokens)
+add_library(LiteRTLM::Runtime::Executor::LlmExecutorProcessedTokens
+  ALIAS runtime_executor_llm_executor_processed_tokens)
 
 target_include_directories(runtime_executor_llm_executor_processed_tokens
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -290,11 +316,12 @@ target_link_libraries(runtime_executor_llm_executor_processed_tokens
 add_litertlm_library(runtime_executor_llm_executor_settings STATIC
   llm_executor_settings.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMExecutorSettings ALIAS runtime_executor_llm_executor_settings)
+add_library(LiteRTLM::Runtime::Executor::LlmExecutorSettings
+  ALIAS runtime_executor_llm_executor_settings)
 
 target_include_directories(runtime_executor_llm_executor_settings
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -302,8 +329,7 @@ target_include_directories(runtime_executor_llm_executor_settings
 target_link_libraries(runtime_executor_llm_executor_settings
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    runtime_util_litert_status_util
-    runtime_util_logging
+    LiteRTLM::Runtime::Util::Logging
     LITERTLM_DEPS
 )
 # ==============================================================================
@@ -312,11 +338,12 @@ target_link_libraries(runtime_executor_llm_executor_settings
 add_litertlm_library(runtime_executor_llm_executor_settings_utils STATIC
   llm_executor_settings_utils.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMExecutorSettingsUtils ALIAS runtime_executor_llm_executor_settings_utils)
+add_library(LiteRTLM::Runtime::Executor::LlmExecutorSettingsUtils
+  ALIAS runtime_executor_llm_executor_settings_utils)
 
 target_include_directories(runtime_executor_llm_executor_settings_utils
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -324,9 +351,9 @@ target_include_directories(runtime_executor_llm_executor_settings_utils
 target_link_libraries(runtime_executor_llm_executor_settings_utils
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
-    runtime_util_litert_status_util
-    runtime_util_logging
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Util::FileUtil
+    LiteRTLM::Runtime::Util::Logging
     LITERTLM_DEPS
 )
 # ==============================================================================
@@ -335,22 +362,20 @@ target_link_libraries(runtime_executor_llm_executor_settings_utils
 add_litertlm_library(runtime_executor_common_utils STATIC
   common_utils.cc
 )
-add_library(LiteRTLM::Runtime::Executor::CommonUtils ALIAS runtime_executor_common_utils)
+add_library(LiteRTLM::Runtime::Executor::CommonUtils
+  ALIAS runtime_executor_common_utils)
 
 target_include_directories(runtime_executor_common_utils
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_common_utils
   PUBLIC
-    runtime_util_litert_status_util
     LITERTLM_DEPS
 )
-
-
 
 # ==============================================================================
 # LLM LiteRT Compiled Model Cache Utils
@@ -358,19 +383,18 @@ target_link_libraries(runtime_executor_common_utils
 add_litertlm_library(runtime_executor_llm_litert_compiled_model_cache_utils STATIC
   llm_litert_compiled_model_cache_utils.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMLiteRTCompiledModelCacheUtils ALIAS runtime_executor_llm_litert_compiled_model_cache_utils)
+add_library(LiteRTLM::Runtime::Executor::LlmLitertCompiledModelCacheUtils ALIAS runtime_executor_llm_litert_compiled_model_cache_utils)
 
 target_include_directories(runtime_executor_llm_litert_compiled_model_cache_utils
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_llm_litert_compiled_model_cache_utils
   PUBLIC
-    runtime_util_convert_tensor_buffer
-    runtime_util_litert_status_util
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
     LITERTLM_DEPS
 )
 
@@ -380,11 +404,12 @@ target_link_libraries(runtime_executor_llm_litert_compiled_model_cache_utils
 add_litertlm_library(runtime_executor_llm_litert_compiled_model_executor_factory STATIC
   llm_litert_compiled_model_executor_factory.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMLiteRTCompiledModelExecutorFactory ALIAS runtime_executor_llm_litert_compiled_model_executor_factory)
+add_library(LiteRTLM::Runtime::Executor::LlmLitertCompiledModelExecutorFactory 
+ALIAS runtime_executor_llm_litert_compiled_model_executor_factory)
 
 target_include_directories(runtime_executor_llm_litert_compiled_model_executor_factory
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -392,26 +417,25 @@ target_include_directories(runtime_executor_llm_litert_compiled_model_executor_f
 target_link_libraries(runtime_executor_llm_litert_compiled_model_executor_factory
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
-    LiteRTLM::Runtime::Executor::LLM::CompiledModelExecutor
-    LiteRTLM::Runtime::Executor::LLM::NpuCompiledModel
-    LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils
-    LiteRTLM::Runtime::Executor::LLM::Interface
-    LiteRTLM::Runtime::Executor::LLMExecutorProcessedTokens
-    LiteRTLM::Runtime::Executor::LLMLiteRTCompiledModelCacheUtils
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Executor::LlmLitertCompiledModelExecutor
+    LiteRTLM::Runtime::Executor::LlmNpuCompiledModel
+    LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
+    LiteRTLM::Runtime::Executor::LlmExecutorInterface
+    LiteRTLM::Runtime::Executor::LlmExecutorProcessedTokens
+    LiteRTLM::Runtime::Executor::LlmLitertCompiledModelCacheUtils
     LiteRTLM::Runtime::Executor::MagicNumberConfigsHelper
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    LiteRTLM::Runtime::Components::ModelResources::LiteRTLM
-    LiteRTLM::Runtime::Components::ModelResources::Task
-    LiteRTLM::Runtime::Components::Sampler::Interface
-    LiteRTLM::Runtime::Components::Sampler::Factory
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Components::ModelResourcesLitertLm
+    LiteRTLM::Runtime::Components::ModelResourcesTask
+    LiteRTLM::Runtime::Components::SamplerInterface
+    LiteRTLM::Runtime::Components::SamplerFactory
     LiteRTLM::Runtime::Components::EmbeddingLookup::Manager
-    runtime_util_convert_tensor_buffer
-    runtime_util_file_util
-    runtime_util_litert_status_util
-    runtime_util_lora_util
-    runtime_util_scoped_file
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
+    LiteRTLM::Runtime::Util::FileUtil
+    LiteRTLM::Runtime::Util::LoraUtil
+    LiteRTLM::Runtime::Util::ScopedFile
     LITERTLM_DEPS
 )
 
@@ -421,11 +445,12 @@ target_link_libraries(runtime_executor_llm_litert_compiled_model_executor_factor
 add_litertlm_library(runtime_executor_llm_litert_compiled_model_executor STATIC
   llm_litert_compiled_model_executor.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLM::CompiledModelExecutor ALIAS runtime_executor_llm_litert_compiled_model_executor)
+add_library(LiteRTLM::Runtime::Executor::LlmLitertCompiledModelExecutor
+  ALIAS runtime_executor_llm_litert_compiled_model_executor)
 
 target_include_directories(runtime_executor_llm_litert_compiled_model_executor
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -433,28 +458,59 @@ target_include_directories(runtime_executor_llm_litert_compiled_model_executor
 target_link_libraries(runtime_executor_llm_litert_compiled_model_executor
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
-    LiteRTLM::Runtime::Executor::LLMExecutorSettingsUtils
-    LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils
-    LiteRTLM::Runtime::Executor::LLM::Interface
-    LiteRTLM::Runtime::Executor::LLMExecutorProcessedTokens
-    LiteRTLM::Runtime::Executor::LLMLiteRTCompiledModelCacheUtils
-    LiteRTLM::Runtime::Executor::LLMLiteRTMtpDrafter
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Executor::LlmExecutorSettingsUtils
+    LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
+    LiteRTLM::Runtime::Executor::LlmExecutorInterface
+    LiteRTLM::Runtime::Executor::LlmExecutorProcessedTokens
+    LiteRTLM::Runtime::Executor::LlmLitertCompiledModelCacheUtils
+    LiteRTLM::Runtime::Executor::LlmLitertMtpDrafter
     LiteRTLM::Runtime::Executor::MagicNumberConfigsHelper
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    LiteRTLM::Runtime::Components::ModelResources::LiteRTLM
-    LiteRTLM::Runtime::Components::ModelResources::Task
-    LiteRTLM::Runtime::Components::Sampler::Interface
-    LiteRTLM::Runtime::Components::Sampler::Factory
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Components::ModelResourcesLitertLm
+    LiteRTLM::Runtime::Components::ModelResourcesTask
+    LiteRTLM::Runtime::Components::SamplerInterface
+    LiteRTLM::Runtime::Components::SamplerFactory
     LiteRTLM::Runtime::Components::EmbeddingLookup::Manager
-    runtime_util_convert_tensor_buffer
-    runtime_util_file_util
-    runtime_util_litert_status_util
-    runtime_util_lora_util
-    runtime_util_scoped_file
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
+    LiteRTLM::Runtime::Util::FileUtil
+    LiteRTLM::Runtime::Util::LoraUtil
+    LiteRTLM::Runtime::Util::ScopedFile
     LITERTLM_DEPS
 )
+
+# ==============================================================================
+# LLM LiteRT NPU Compiled Model Executor Utils
+# ==============================================================================
+add_litertlm_library(runtime_executor_llm_litert_npu_compiled_model_executor_utils STATIC
+  llm_litert_npu_compiled_model_executor_utils.cc
+)
+add_library(LiteRTLM::Runtime::Executor::LlmNpuCompiledModelUtils ALIAS runtime_executor_llm_litert_npu_compiled_model_executor_utils)
+
+target_include_directories(runtime_executor_llm_litert_npu_compiled_model_executor_utils
+  PRIVATE
+    ${LITERTLM_GENERATED_SRC_DIR}
+    ${LITERT_INCLUDE_DIR}
+    ${LITERTLM_INCLUDE_PATHS}
+)
+
+target_link_libraries(runtime_executor_llm_litert_npu_compiled_model_executor_utils
+  PUBLIC
+    LiteRTLM::Runtime::Executor::ExecutorSettingsBase
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
+    LiteRTLM::Runtime::Executor::LlmExecutorInterface
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Components::ModelResourcesTask
+    LiteRTLM::Runtime::Components::EmbeddingLookup::Manager
+    LiteRTLM::Runtime::Executor::LlmExecutorProcessedTokens
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
+
+    LITERTLM_DEPS
+)
+
 
 # ==============================================================================
 # LLM LiteRT NPU Compiled Model Executor
@@ -462,11 +518,11 @@ target_link_libraries(runtime_executor_llm_litert_compiled_model_executor
 add_litertlm_library(runtime_executor_llm_litert_npu_compiled_model_executor STATIC
   llm_litert_npu_compiled_model_executor.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLM::NpuCompiledModel ALIAS runtime_executor_llm_litert_npu_compiled_model_executor)
+add_library(LiteRTLM::Runtime::Executor::LlmNpuCompiledModel ALIAS runtime_executor_llm_litert_npu_compiled_model_executor)
 
 target_include_directories(runtime_executor_llm_litert_npu_compiled_model_executor
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -474,14 +530,15 @@ target_include_directories(runtime_executor_llm_litert_npu_compiled_model_execut
 target_link_libraries(runtime_executor_llm_litert_npu_compiled_model_executor
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
-    LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils
-    LiteRTLM::Runtime::Executor::LLM::Interface
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    LiteRTLM::Runtime::Components::ModelResources::Task
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
+    LiteRTLM::Runtime::Executor::LlmNpuCompiledModelUtils
+    LiteRTLM::Runtime::Executor::LlmExecutorInterface
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Components::ModelResourcesTask
     LiteRTLM::Runtime::Components::EmbeddingLookup::Manager
-    LiteRTLM::Runtime::Executor::LLMExecutorProcessedTokens
+    LiteRTLM::Runtime::Executor::LlmExecutorProcessedTokens
     runtime_util_convert_tensor_buffer
     runtime_util_litert_status_util
 
@@ -498,15 +555,15 @@ add_library(LiteRTLM::Runtime::Executor::MagicNumberConfigsHelper ALIAS runtime_
 
 target_include_directories(runtime_executor_magic_number_configs_helper
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_magic_number_configs_helper
   PUBLIC
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
-    LiteRTLM::Runtime::Components::ModelResources::Interface
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
     runtime_util_litert_status_util
 
     LITERTLM_DEPS
@@ -516,36 +573,38 @@ target_link_libraries(runtime_executor_magic_number_configs_helper
 # Vision Executor Interface
 # ==============================================================================
 add_litertlm_library(runtime_executor_vision_executor INTERFACE)
-add_library(LiteRTLM::Runtime::Executor::Vision::Interface ALIAS runtime_executor_vision_executor)
+add_library(LiteRTLM::Runtime::Executor::VisionExecutorInterface
+  ALIAS runtime_executor_vision_executor)
 
 target_include_directories(runtime_executor_vision_executor
   INTERFACE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_vision_executor
   INTERFACE
-    LiteRTLM::Runtime::Executor::Vision::Base
+    LiteRTLM::Runtime::Executor::VisionBaseInterface
 )
 
 # ==============================================================================
 # Vision Executor Base
 # ==============================================================================
 add_litertlm_library(runtime_executor_vision_executor_base INTERFACE)
-add_library(LiteRTLM::Runtime::Executor::Vision::Base ALIAS runtime_executor_vision_executor_base)
+add_library(LiteRTLM::Runtime::Executor::VisionBaseInterface
+  ALIAS runtime_executor_vision_executor_base)
 
 target_include_directories(runtime_executor_vision_executor_base
   INTERFACE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
 
 target_link_libraries(runtime_executor_vision_executor_base
   INTERFACE
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
     LITERTLM_DEPS
 )
 
@@ -555,11 +614,11 @@ target_link_libraries(runtime_executor_vision_executor_base
 add_litertlm_library(runtime_executor_vision_executor_settings STATIC
   vision_executor_settings.cc
 )
-add_library(LiteRTLM::Runtime::Executor::Vision::Settings ALIAS runtime_executor_vision_executor_settings)
+add_library(LiteRTLM::Runtime::Executor::VisionExecutorSettings ALIAS runtime_executor_vision_executor_settings)
 
 target_include_directories(runtime_executor_vision_executor_settings
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -567,10 +626,8 @@ target_include_directories(runtime_executor_vision_executor_settings
 target_link_libraries(runtime_executor_vision_executor_settings
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Util::LiteRtStatusUtil
     LITERTLM_DEPS
 )
-
 
 # ==============================================================================
 # Vision Executor Utils
@@ -579,11 +636,11 @@ target_link_libraries(runtime_executor_vision_executor_settings
 add_litertlm_library(runtime_executor_vision_executor_utils STATIC
   vision_executor_utils.cc
 )
-add_library(LiteRTLM::Runtime::Executor::Vision::Utils ALIAS runtime_executor_vision_executor_utils)
+add_library(LiteRTLM::Runtime::Executor::VisionExecutorUtils ALIAS runtime_executor_vision_executor_utils)
 
 target_include_directories(runtime_executor_vision_executor_utils
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -591,8 +648,7 @@ target_include_directories(runtime_executor_vision_executor_utils
 target_link_libraries(runtime_executor_vision_executor_utils
   PUBLIC
     LiteRTLM::Runtime::Engine::IoTypes
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    LiteRTLM::Runtime::Util::LiteRtStatusUtil
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
     LITERTLM_DEPS
 )
 
@@ -602,11 +658,12 @@ target_link_libraries(runtime_executor_vision_executor_utils
 add_litertlm_library(runtime_executor_vision_litert_compiled_model_executor STATIC
   vision_litert_compiled_model_executor.cc
 )
-add_library(LiteRTLM::Runtime::Executor::Vision::CompiledModel ALIAS runtime_executor_vision_litert_compiled_model_executor)
+add_library(LiteRTLM::Runtime::Executor::VisionLitertCompiledModelExecutor
+ALIAS runtime_executor_vision_litert_compiled_model_executor)
 
 target_include_directories(runtime_executor_vision_litert_compiled_model_executor
   PUBLIC
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -614,22 +671,16 @@ target_include_directories(runtime_executor_vision_litert_compiled_model_executo
 target_link_libraries(runtime_executor_vision_litert_compiled_model_executor
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-    LiteRTLM::Runtime::Executor::Vision::Settings
-    runtime_util_convert_tensor_buffer
-    LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils
-    runtime_util_litert_status_util
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    LiteRTLM::Runtime::Executor::Vision::Interface
-
+    LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+    LiteRTLM::Runtime::Executor::VisionExecutorSettings
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
+    LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Executor::VisionExecutorInterface
     LITERTLM_DEPS
 )
 
-# ==============================================================================
-# Default Static GPU Accelerator
-# ==============================================================================
-add_litertlm_library(runtime_executor_default_static_gpu_accelerator INTERFACE)
-# Note: Empty target for CPU builds, but required for linking consistency.
+
 
 # ==============================================================================
 # LLM LiteRT MTP Drafter
@@ -637,11 +688,11 @@ add_litertlm_library(runtime_executor_default_static_gpu_accelerator INTERFACE)
 add_litertlm_library(runtime_executor_llm_litert_mtp_drafter STATIC
   llm_litert_mtp_drafter.cc
 )
-add_library(LiteRTLM::Runtime::Executor::LLMLiteRTMtpDrafter ALIAS runtime_executor_llm_litert_mtp_drafter)
+add_library(LiteRTLM::Runtime::Executor::LlmLitertMtpDrafter ALIAS runtime_executor_llm_litert_mtp_drafter)
 
 target_include_directories(runtime_executor_llm_litert_mtp_drafter
   PRIVATE
-    ${GENERATED_SRC_DIR}
+    ${LITERTLM_GENERATED_SRC_DIR}
     ${LITERT_INCLUDE_DIR}
     ${LITERTLM_INCLUDE_PATHS}
 )
@@ -649,14 +700,13 @@ target_include_directories(runtime_executor_llm_litert_mtp_drafter
 target_link_libraries(runtime_executor_llm_litert_mtp_drafter
   PUBLIC
     LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-    LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils
-    LiteRTLM::Runtime::Executor::LLMExecutorSettings
-    LiteRTLM::Runtime::Components::ModelResources::Interface
-    LiteRTLM::Runtime::Components::Sampler::Interface
-    LiteRTLM::Runtime::Components::Sampler::Factory
+    LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
+    LiteRTLM::Runtime::Executor::LlmExecutorSettings
+    LiteRTLM::Runtime::Components::ModelResourcesInterface
+    LiteRTLM::Runtime::Components::SamplerInterface
+    LiteRTLM::Runtime::Components::SamplerFactory
     LiteRTLM::Runtime::Components::EmbeddingLookup::Manager
-    runtime_util_convert_tensor_buffer
-    runtime_util_litert_status_util
+    LiteRTLM::Runtime::Util::ConvertTensorBuffer
     LITERTLM_DEPS
 )
 
@@ -667,25 +717,31 @@ add_library(runtime_executor_libs INTERFACE)
 add_library(LiteRTLM::Runtime::Executor ALIAS runtime_executor_libs)
 
 target_link_libraries(runtime_executor_libs INTERFACE
-  LiteRTLM::Runtime::Executor::AudioExecutor
+  LiteRTLM::Runtime::Executor::AudioExecutorInterface
+  LiteRTLM::Runtime::Executor::VisionExecutorInterface
+  LiteRTLM::Runtime::Executor::LlmExecutorInterface
   LiteRTLM::Runtime::Executor::AudioExecutorSettings
   LiteRTLM::Runtime::Executor::AudioExecutorUtils
-  LiteRTLM::Runtime::Executor::AudioLiteRTCompiledModel
+  LiteRTLM::Runtime::Executor::AudioLitertCompiledModelExecutor
+  LiteRTLM::Runtime::Executor::CommonUtils
   LiteRTLM::Runtime::Executor::ExecutorSettingsBase
-  LiteRTLM::Runtime::Executor::LLMFakeExecutor
-  LiteRTLM::Runtime::Executor::LiteRTCompiledModelExecutorUtils
-  LiteRTLM::Runtime::Executor::LLMExecutorIoTypes
-  LiteRTLM::Runtime::Executor::LLMExecutorProcessedTokens
-  LiteRTLM::Runtime::Executor::LLMExecutorSettings
-  LiteRTLM::Runtime::Executor::LLMExecutorSettingsUtils
-  LiteRTLM::Runtime::Executor::LLMLiteRTCompiledModelExecutorFactory
-  LiteRTLM::Runtime::Executor::LLMLiteRTCompiledModelCacheUtils
-  LiteRTLM::Runtime::Executor::LLM::CompiledModelExecutor
-  LiteRTLM::Runtime::Executor::LLMLiteRTMtpDrafter
-  LiteRTLM::Runtime::Executor::LLM::NpuCompiledModel
+  LiteRTLM::Runtime::Executor::FakeLlmExecutor
+  LiteRTLM::Runtime::Executor::LitertCompiledModelExecutorUtils
+  LiteRTLM::Runtime::Executor::LlmExecutorIoTypes
+  LiteRTLM::Runtime::Executor::LlmExecutorProcessedTokens
+  LiteRTLM::Runtime::Executor::LlmExecutorSettings
+  LiteRTLM::Runtime::Executor::LlmExecutorSettingsUtils
+  LiteRTLM::Runtime::Executor::LlmLitertCompiledModelExecutorFactory
+  LiteRTLM::Runtime::Executor::LlmLitertCompiledModelCacheUtils
+  LiteRTLM::Runtime::Executor::LlmLitertCompiledModelExecutor
+  LiteRTLM::Runtime::Executor::LlmLitertMtpDrafter
+  LiteRTLM::Runtime::Executor::LlmNpuCompiledModelUtils
+  LiteRTLM::Runtime::Executor::LlmNpuCompiledModel
+  LiteRTLM::Runtime::Executor::LlmProcessedContextInterface
   LiteRTLM::Runtime::Executor::MagicNumberConfigsHelper
-  LiteRTLM::Runtime::Executor::Vision::Settings
-  LiteRTLM::Runtime::Executor::Vision::CompiledModel
-  runtime_executor_default_static_gpu_accelerator
-  LiteRTLM::Runtime::Executor::AudioExecutorUtils
+  LiteRTLM::Runtime::Executor::VisionExecutorSettings
+  LiteRTLM::Runtime::Executor::VisionExecutorUtils
+  LiteRTLM::Runtime::Executor::VisionLitertCompiledModelExecutor
+  LiteRTLM::Runtime::Executor::DefaultStaticGpuAcceleratorInterface
+  LiteRTLM::Runtime::Executor::Litert
 )

@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-include_guard(GLOBAL)
-
 include("${LITERTLM_MODULES_DIR}/utils.cmake")
-include("${ABSL_PACKAGE_DIR}/absl_aggregate.cmake")
+include("${LITERTLM_PROTOBUF_CONFIG_PATH}")
+include("${LITERTLM_ABSL_CONFIG_PATH}")
+include("${LITERTLM_ABSL_AGGREGATE_PATH}")
 
 add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
+add_definitions(-DABSL_LTS_GROUP_EXPORT)
 
 generate_absl_aggregate()
 
@@ -26,7 +26,7 @@ set(protobuf_ABSL_PROVIDER "package" CACHE INTERNAL "" FORCE)
 set(protobuf_ABSL_USED_TARGETS "LiteRTLM::absl::absl" CACHE INTERNAL "" FORCE)
 set(protobuf_ABSL_USED_TEST_TARGETS "LiteRTLM::absl::absl" CACHE INTERNAL "" FORCE)
 
-include_directories(${ABSL_INCLUDE_DIR})
+include_directories(SYSTEM ${LITERTLM_ABSL_INCLUDE_DIR})
 link_libraries(LiteRTLM::absl::shim)
 
 # [TODO] Refactor into macro for DRY principle.
@@ -60,9 +60,16 @@ elseif(MSVC)
     set(_LITERTLM_SYSLIBS "") 
 endif()
 
-set(CMAKE_CXX_STANDARD_LIBRARIES
-    "${CMAKE_CXX_STANDARD_LIBRARIES} ${_LITERTLM_LINK_MULTIDEF} ${_LITERTLM_LINK_GROUP_START} ${_ABSL_PAYLOAD} ${_LITERTLM_SYSLIBS} ${_LITERTLM_LINK_GROUP_END}"
-    CACHE STRING "Forced Abseil aggregate for Protobuf internal linking" FORCE
-)
 
-add_definitions(-DABSL_LTS_GROUP_EXPORT)
+
+set(CMAKE_CXX_STANDARD_LIBRARIES
+    ${CMAKE_CXX_STANDARD_LIBRARIES} 
+    ${_LITERTLM_LINK_MULTIDEF}
+    ${_LITERTLM_LINK_GROUP_START}
+    ${_ABSL_LINK_FLAGS}
+    ${_LITERTLM_SYSLIBS}
+    ${_LITERTLM_LINK_GROUP_END}
+    CACHE STRING "" FORCE
+)
+string(REPLACE ";" " " CMAKE_CXX_STANDARD_LIBRARIES "${CMAKE_CXX_STANDARD_LIBRARIES}")
+
