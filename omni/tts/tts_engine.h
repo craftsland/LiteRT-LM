@@ -17,17 +17,21 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "absl/functional/any_invocable.h"  // from @com_google_absl
 #include "absl/status/status.h"  // from @com_google_absl
 #include "absl/status/statusor.h"  // from @com_google_absl
 #include "absl/strings/string_view.h"  // from @com_google_absl
+#include "litert/cc/litert_environment.h"  // from @litert
 #include "omni/base/io_types.h"
 #include "omni/tts/stream_text_source.h"
 #include "omni/tts/text_chunk_utils.h"
 #include "omni/tts/tts_session.h"
 #include "runtime/executor/executor_settings_base.h"
 #include "runtime/framework/threadpool.h"
+#include "runtime/util/memory_mapped_file.h"
+#include "runtime/util/model_asset_bundle_resources.h"
 
 namespace litert::omni::tts {
 
@@ -43,11 +47,17 @@ enum class ModelType {
 // Configuration settings for TtsEngine initialization.
 struct TtsEngineSettings {
   ModelType model_type = ModelType::UNSPECIFIED;
-  // Folder containing the TTS model files.
+  // Folder containing the TTS model files or path to a .task file.
   std::string model_folder;
-  ::litert::lm::Backend backend = ::litert::lm::Backend::CPU;
+  // Optional pre-loaded ModelAssetBundleResources (e.g. from a .task file).
+  std::shared_ptr<lm::ModelAssetBundleResources> model_resources = nullptr;
+  // Optional cache directory for model acceleration (e.g., XNNPack weight
+  // cache).
+  std::string cache_dir;
+  lm::Backend backend = lm::Backend::CPU;
   TextChunkConfig text_chunk_config;
   int num_threads = 4;
+  int max_frames = 500;
   // TODO b/538727793 introduce more settings for TtsEngine, and need to add
   // model type specific settings.
 };
@@ -89,17 +99,28 @@ class TtsEngine {
   friend struct TtsEngineTestingPeer;
 
   static absl::StatusOr<std::unique_ptr<TtsEngine>> CreateWithComponents(
-      const TtsEngineSettings& settings, TtsSession::Components components);
+      const TtsEngineSettings& settings, TtsSession::Components components,
+      std::shared_ptr<Environment> env = nullptr,
+      std::shared_ptr<lm::MemoryMappedFile> task_mapped_file = nullptr);
 
-  TtsEngine(const TtsEngineSettings& settings,
+  TtsEngine(const TtsEngineSettings& settings, std::shared_ptr<Environment> env,
             std::unique_ptr<TtsSession> session,
             StreamTextSource* stream_text_source,
-            std::unique_ptr<::litert::lm::ThreadPool> thread_pool);
+            std::unique_ptr<lm::ThreadPool> thread_pool,
+            std::shared_ptr<lm::MemoryMappedFile> task_mapped_file = nullptr)
+      : settings_(settings),
+        env_(std::move(env)),
+        session_(std::move(session)),
+        stream_text_source_(stream_text_source),
+        thread_pool_(std::move(thread_pool)),
+        task_mapped_file_(std::move(task_mapped_file)) {}
 
   TtsEngineSettings settings_;
+  std::shared_ptr<Environment> env_;
   std::unique_ptr<TtsSession> session_;
   StreamTextSource* stream_text_source_;  // Non-owning pointer into session_
-  std::unique_ptr<::litert::lm::ThreadPool> thread_pool_;
+  std::unique_ptr<lm::ThreadPool> thread_pool_;
+  std::shared_ptr<lm::MemoryMappedFile> task_mapped_file_;
 };
 
 }  // namespace litert::omni::tts

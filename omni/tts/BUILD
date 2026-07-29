@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# [Google-internal load of `cc_binary`]
 # [Google-internal load of `cc_library`]
 # [Google-internal load of `cc_test`]
 
@@ -202,9 +203,13 @@ cc_library(
         "@com_google_absl//absl/synchronization",
         "@com_google_absl//absl/time",
         "@litert//litert/cc:litert_environment",
+        "@litert//litert/cc:litert_macros",
         "//omni/base:io_types",
+        "//omni/tts/qwen3_tts:qwen3_tts_stages",
         "//runtime/executor:executor_settings_base",
         "//runtime/framework:threadpool",
+        "//runtime/util:memory_mapped_file",
+        "//runtime/util:model_asset_bundle_resources",
     ],
 )
 

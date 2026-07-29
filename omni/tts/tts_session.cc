@@ -78,7 +78,18 @@ void TtsSession::Reset() {
 }
 
 absl::StatusOr<AudioOutput> TtsSession::ProcessNextChunk() {
-  ABSL_RETURN_IF_ERROR(components_.text_source->Schedule());
+  if (!components_.text_source->NeedSchedule() &&
+      !components_.text_frontend->NeedSchedule() &&
+      !components_.acoustic_predictor->NeedSchedule() &&
+      !components_.latent_decoder->NeedSchedule() &&
+      !components_.vocoder->NeedSchedule() &&
+      !components_.vocoder->HasOutput()) {
+    return absl::OutOfRangeError("End of stream reached.");
+  }
+
+  if (components_.text_source->NeedSchedule()) {
+    ABSL_RETURN_IF_ERROR(components_.text_source->Schedule());
+  }
 
   if (components_.text_frontend->NeedSchedule()) {
     ABSL_RETURN_IF_ERROR(components_.text_frontend->Schedule());
@@ -121,7 +132,14 @@ absl::Status TtsSession::ProcessAsync(::litert::lm::ThreadPool& thread_pool,
        this](absl::StatusOr<AudioOutput> result) mutable -> absl::Status {
     if (absl::IsOutOfRange(result.status())) {
       ABSL_RETURN_IF_ERROR(components_.vocoder->Flush());
-      ABSL_RETURN_IF_ERROR(callback(components_.vocoder->GetOutput()));
+      while (components_.vocoder->HasOutput()) {
+        auto out = components_.vocoder->GetOutput();
+        if (out.ok()) {
+          ABSL_RETURN_IF_ERROR(callback(std::move(out)));
+        } else if (!absl::IsNotFound(out.status())) {
+          return out.status();
+        }
+      }
     }
     return callback(std::move(result));
   };
