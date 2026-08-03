@@ -39,6 +39,7 @@
 #include "absl/strings/str_cat.h"  // from @com_google_absl
 #include "absl/strings/str_join.h"  // from @com_google_absl
 #include "absl/strings/string_view.h"  // from @com_google_absl
+#include "absl/synchronization/mutex.h"  // from @com_google_absl
 #include "absl/time/clock.h"  // from @com_google_absl
 #include "absl/time/time.h"  // from @com_google_absl
 #include "absl/types/span.h"  // from @com_google_absl
@@ -3462,6 +3463,7 @@ LlmLiteRtNpuCompiledModelExecutor::CreateNewContext(
 
 absl::StatusOr<std::unique_ptr<LlmContext>>
 LlmLiteRtNpuCompiledModelExecutor::CloneContext() const {
+  absl::MutexLock lock(&executor_mutex_);
   absl::flat_hash_map<std::string, ::litert::TensorBuffer> kv_cache_buffers;
   for (const auto& [name, buffer] :
        llm_inference_context_.prefill_input_buffers) {
@@ -3493,6 +3495,7 @@ LlmLiteRtNpuCompiledModelExecutor::CloneContext() const {
 
 absl::Status LlmLiteRtNpuCompiledModelExecutor::RestoreContext(
     std::unique_ptr<LlmContext> context_data) {
+  absl::MutexLock lock(&executor_mutex_);
   if (context_data->runtime_state().current_step > 0) {
     auto& processed_ctx =
         static_cast<LlmProcessedContext&>(context_data->processed_context());
@@ -4312,6 +4315,7 @@ LlmLiteRtNpuCompiledModelExecutor::CreateForModelWithoutPerLayerEmbedding(
 absl::Status LlmLiteRtNpuCompiledModelExecutor::ClearKVCache(
     absl::flat_hash_map<absl::string_view, ::litert::TensorBuffer>& buffers)
     const {
+  absl::MutexLock lock(&executor_mutex_);
   for (auto& [buffer_name, buffer] : buffers) {
     if (buffer_name.starts_with(kv_cache_k_root_name) ||
         buffer_name.starts_with(kv_cache_v_root_name) ||
